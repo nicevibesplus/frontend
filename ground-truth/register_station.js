@@ -21,7 +21,7 @@
 
 
 //const OPENSENSEMAP_API = 'https://api.opensensemap.org';
-const OPENSENSEMAP_API = 'http://localhost:3000';  // For testing against a local mock server instead of the real API
+const OPENSENSEMAP_API = 'http://localhost:3000/api';  // For testing against a local mock server instead of the real API
 //const OPENSENSEMAP_API = 'https://staging.opensensemap.org/api/';
 
 
@@ -159,9 +159,9 @@ export async function osmSignIn(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ email, password }),
   });
-  console.log(`[OSM] Sign-in response status: ${res.body}`);
 
   const text = await res.text();
+
   let data;
   try { data = JSON.parse(text); } catch { data = text; }
   

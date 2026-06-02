@@ -14,7 +14,7 @@ import { pool }         from './db.js';
 import { fetchWeather } from './brightsky.js';
 
 //const OPENSENSEMAP_API = 'https://api.opensensemap.org';
-const OPENSENSEMAP_API = 'http://localhost:3000';  
+const OPENSENSEMAP_API = 'http://localhost:3000/api';  
 //const OPENSENSEMAP_API = 'https://staging.opensensemap.org/api';
 
 const INTERVAL_MS      = Number(process.env.POLL_INTERVAL_MS) || 15 * 60 * 1000;
