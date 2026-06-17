@@ -595,6 +595,24 @@ export default function Explore() {
 				'/img/mobile_marker_old.png',
 				retinaImageOptions,
 			),
+			loadImageIfNotExists(
+				map,
+				'osem-groundtruth-active',
+				'/img/groundtruth_marker_active.png',
+				retinaImageOptions,
+			),
+			loadImageIfNotExists(
+				map,
+				'osem-groundtruth-inactive',
+				'/img/groundtruth_marker_inactive.png',
+				retinaImageOptions,
+			),
+			loadImageIfNotExists(
+				map,
+				'osem-groundtruth-old',
+				'/img/groundtruth_marker_old.png',
+				retinaImageOptions,
+			)
 		])
 	}
 
@@ -709,6 +727,8 @@ export default function Explore() {
 										['==', ['get', 'status'], 'active'],
 										[
 											'case',
+											['in', 'groundtruth-integration', ['get', 'tags']],
+											'osem-groundtruth-active',
 											['==', ['get', 'exposure'], 'mobile'],
 											'osem-mobile-active',
 											'osem-device-active',
@@ -716,12 +736,16 @@ export default function Explore() {
 										['==', ['get', 'status'], 'inactive'],
 										[
 											'case',
+											['in', 'groundtruth-integration', ['get', 'tags']],
+											'osem-groundtruth-inactive',
 											['==', ['get', 'exposure'], 'mobile'],
 											'osem-mobile-inactive',
 											'osem-device-inactive',
 										],
 										[
 											'case',
+											['in', 'groundtruth-integration', ['get', 'tags']],
+											'osem-groundtruth-old',
 											['==', ['get', 'exposure'], 'mobile'],
 											'osem-mobile-old',
 											'osem-device-old',

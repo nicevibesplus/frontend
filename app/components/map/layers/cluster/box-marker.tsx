@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Box, Rocket } from 'lucide-react'
+import { Box, Rocket,RadioTower } from 'lucide-react'
 import { useState } from 'react'
 import { type MarkerProps, Marker, useMap } from 'react-map-gl/maplibre'
 import { useMatches, useNavigate, useSearchParams } from 'react-router'
@@ -16,6 +16,9 @@ const getStatusColor = (device: Device) => {
 	if (device.status === 'active') {
 		if (device.exposure === 'mobile') {
 			return 'bg-blue-100'
+		}
+		if (device.tags?.includes("groundtruth-integration")){
+			return 'bg-purple-100'
 		}
 		return 'bg-green-300'
 	} else if (device.status === 'inactive') {
@@ -92,7 +95,9 @@ export default function BoxMarker({ device, ...props }: BoxMarkerProps) {
 							`${getStatusColor(device)} p-1`,
 						)}
 					>
-						{device.exposure === 'mobile' ? (
+						{device.tags?.includes("groundtruth-integration") ? (
+							<RadioTower className="h-4 w-4 text-black" />
+						) : device.exposure === 'mobile' ? (
 							<Rocket className="h-4 w-4 text-black" />
 						) : (
 							<Box className="h-4 w-4 text-black" />

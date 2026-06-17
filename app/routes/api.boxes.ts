@@ -332,7 +332,7 @@ import {
  */
 export async function loader({ request }: Route.LoaderArgs) {
 	const url = new URL(request.url)
-	const queryObj = Object.fromEntries(url.searchParams)
+	const queryObj = Object.fromEntries(url.searchParams) 
 	const parseResult = BoxesQuerySchema.safeParse(queryObj)
 
 	if (!parseResult.success) {
