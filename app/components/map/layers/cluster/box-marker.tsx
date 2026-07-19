@@ -15,10 +15,10 @@ interface BoxMarkerProps extends MarkerProps {
 const getStatusColor = (device: Device) => {
 	if (device.status === 'active') {
 		if (device.exposure === 'mobile') {
-			return 'bg-blue-100'
+			return 'bg-blue-200'
 		}
 		if (device.tags?.includes("groundtruth-integration")){
-			return 'bg-purple-100'
+			return 'bg-violet-400'
 		}
 		return 'bg-green-300'
 	} else if (device.status === 'inactive') {
@@ -92,7 +92,7 @@ export default function BoxMarker({ device, ...props }: BoxMarkerProps) {
 					<span
 						className={cn(
 							'relative rounded-full transition-colors',
-							`${getStatusColor(device)} p-1`,
+							`${getStatusColor(device)} p-1`,	
 						)}
 					>
 						{device.tags?.includes("groundtruth-integration") ? (
