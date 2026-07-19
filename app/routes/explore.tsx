@@ -434,6 +434,27 @@ export default function Explore() {
 	const [hoveredFeatureId, setHoveredFeatureId] = useState<
 		string | number | null
 	>(null)
+	const [contextMenu, setContextMenu] = useState<{
+		x: number
+		y: number
+		device: any
+	} | null>(null)
+
+	const currentPairs = useMemo(() => {
+		const pathParts = location.pathname.split('/').filter(Boolean)
+		const pairs: { d: string; s: string; a: string }[] = []
+
+		for (let i = 1; i < pathParts.length; i += 3) {
+			if (pathParts[i] && pathParts[i + 1] && pathParts[i + 2]) {
+				pairs.push({
+					d: pathParts[i],
+					s: pathParts[i + 1],
+					a: pathParts[i + 2],
+				})
+			}
+		}
+		return pairs
+	}, [location.pathname])
 
 	const deviceNamePopup = useMemo(
 		() =>
@@ -456,6 +477,36 @@ export default function Explore() {
 			positions.push(position)
 		}
 		return positions
+	}
+
+	const addSensor = (dId: string, sId: string) => {
+		const activeAxes = new Set(currentPairs.map((p) => p.a))
+		const newAxis = activeAxes.has('1') ? '2' : '1'
+
+		const newPairs = [...currentPairs, { d: dId, s: sId, a: newAxis }]
+
+		const newPath =
+			'/explore/' + newPairs.map((p) => `${p.d}/${p.s}/${p.a}`).join('/')
+
+		navigate(`${newPath}?${searchParams.toString()}`)
+		setContextMenu(null)
+	}
+
+	const removeSensor = (dId: string, sId: string) => {
+		const filteredPairs = currentPairs.filter(
+			(p) => !(p.d === dId && p.s === sId),
+		)
+
+		if (filteredPairs.length === 0) {
+			navigate(`/explore/${dId}?${searchParams.toString()}`)
+		} else {
+			const path =
+				`/explore/` + filteredPairs.map((p) => `${p.d}/${p.s}/${p.a}`).join('/')
+
+			navigate(`${path}?${searchParams.toString()}`)
+		}
+
+		setContextMenu(null)
 	}
 
 	const legendLabels = () => {
@@ -775,6 +826,44 @@ export default function Explore() {
 						values={legendLabels()}
 					/>
 				)}
+				{contextMenu && (
+					<div
+						className="absolute z-50 w-56 rounded-md border bg-white shadow-md dark:bg-zinc-800"
+						style={{ top: contextMenu.y, left: contextMenu.x }}
+						onMouseLeave={() => setContextMenu(null)}
+					>
+						<div className="border-b p-2 text-sm font-bold">
+							{contextMenu.device.name}
+						</div>
+						{contextMenu.device.sensors?.map((sensor: any) => {
+							const isInGraph = currentPairs.some((p) => p.s === sensor.id)
+							return (
+								<div
+									key={sensor.id}
+									className="cursor-pointer p-2 hover:bg-gray-100"
+								>
+									{isInGraph ? (
+										<span
+											onClick={() =>
+												removeSensor(contextMenu.device.id, sensor.id)
+											}
+										>
+											Remove: {sensor.title}
+										</span>
+									) : (
+										<span
+											onClick={() =>
+												addSensor(contextMenu.device.id, sensor.id)
+											}
+										>
+											Add: {sensor.title}
+										</span>
+									)}
+								</div>
+							)
+						})}
+					</div>
+				)}
 
 				<Map
 					interactiveLayerIds={
@@ -786,6 +875,29 @@ export default function Explore() {
 					onMouseMove={handleMouseMove}
 					onMouseLeave={handleMouseLeave}
 					onLoad={handleMapLoad}
+					onContextMenu={async (e) => {
+						e.originalEvent.preventDefault()
+						if (e.features && e.features.length > 0) {
+							const feature = e.features[0]
+							if (feature.layer?.id === 'devices-symbol-layer') {
+								const deviceId = feature.properties.id
+
+								const response = await fetch(`/api/boxes/${deviceId}/sensors`)
+
+								if (response.ok) {
+									const data = await response.json()
+									setContextMenu({
+										x: e.originalEvent.clientX,
+										y: e.originalEvent.clientY,
+										device: {
+											...feature.properties,
+											sensors: data.sensors,
+										},
+									})
+								}
+							}
+						}
+					}}
 					ref={mapRef}
 					initialViewState={initialViewState}
 				>
